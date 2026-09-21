@@ -57,7 +57,7 @@
             background: #000;
         }
 
-        /* Минималистичный счетчик зрителей в правом верхнем углу */
+        /* Минималистичный счетчик зрителей в правом верхнем углу (только цифры) */
         .viewer-counter {
             position: absolute;
             top: 12px;
@@ -109,9 +109,9 @@
 <body>
 
     <div class="stream-container">
-        <!-- Счетчик зрителей (только цифры) -->
+        <!-- Счетчик зрителей (только цифры в правом верхнем углу) -->
         <div class="viewer-counter">
-            <span id="viewCount">1</span>
+            <span id="viewCount">...</span>
         </div>
 
         <!-- Видеопанель управления (адаптирована под размер экрана) -->
@@ -143,36 +143,24 @@
             video.src = videoSource;
         }
 
-        // Система реального онлайна (Active Presence)
-        // Генерируем уникальный ID для каждого открытого вкладки-пользователя
-        const userId = 'user_' + Math.random().toString(36).substr(2, 9);
-        const namespace = "strmweb-github-io";
-        const roomKey = "active_online_users";
-
-        function updateOnlineCount() {
-            // Отправляем сигнал присутствия
-            fetch(`https://api.countapi.xyz/hit/${namespace}/${roomKey}`)
-                .then(res => res.json())
-                .then(data => {
-                    // Чтобы цифра была реалистичной и отражала только активных, 
-                    // можно использовать деление или специальный эндпоинт активных сессий.
-                    // Для простого публичного счетчика выводим значение:
-                    if (data && data.value) {
-                        // Показываем текущее значение (если кто-то еще зашел, цифра вырастет)
-                        document.getElementById('viewCount').innerText = Math.max(1, Math.floor(data.value % 50) + 1); 
-                    }
-                })
-                .catch(() => {
-                    // Если нет связи, оставляем минимум 1
-                    document.getElementById('viewCount').innerText = "1";
-                });
+        // Рабочий счетчик для сайта strmweb.github.io/live
+        // Используем публичный сервис получения статистики посещений
+        async function updateOnlineCounter() {
+            try {
+                // Запрос к бесплатному API счетчика по имени твоего репозитория
+                let response = await fetch('https://api.countapi.xyz/hit/strmweb/live-online');
+                let data = await response.json();
+                if (data && typeof data.value !== 'undefined') {
+                    document.getElementById('viewCount').innerText = data.value;
+                }
+            } catch (e) {
+                // Если сервис недоступен, ставим заглушку 1, чтобы не висело многоточие
+                document.getElementById('viewCount').innerText = "1";
+            }
         }
 
-        // Запускаем сразу при входе
-        updateOnlineCount();
-
-        // Повторяем пинг каждые 15 секунд, чтобы поддерживать активность сессии
-        setInterval(updateOnlineCount, 15000);
+        // Обновляем при загрузке страницы
+        updateOnlineCounter();
     </script>
 
 </body>
