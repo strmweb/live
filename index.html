@@ -2,8 +2,8 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>strmweb</title>
     <!-- Подключаем библиотеку HLS.js для воспроизведения m3u8 потоков -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
@@ -12,49 +12,69 @@
             margin: 0;
             padding: 0;
         }
-        body {
+        body, html {
+            width: 100%;
+            height: 100%;
             background-color: #0b0b0b;
             color: #ffffff;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
             overflow: hidden;
         }
 
-        /* Общий контейнер строго под размер мобильного экрана */
+        /* Адаптивный контейнер: на мобильных занимает весь экран, на ПК выглядит как аккуратное приложение */
         .stream-container {
             position: relative;
-            width: 100vw;
-            height: 100vh;
-            max-width: 420px;
-            max-height: 850px;
+            width: 100%;
+            height: 100%;
+            max-width: 480px;
+            max-height: 100vh;
             background: #000;
             overflow: hidden;
             display: flex;
             flex-direction: column;
         }
 
-        @media (min-width: 421px) {
+        @media (min-width: 481px) {
             .stream-container {
-                border-radius: 20px;
+                height: 95vh;
+                max-height: 900px;
+                border-radius: 24px;
                 box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
             }
         }
 
-        /* Видео теперь занимает только верхнюю часть (оставляя 33% снизу для чата) */
+        /* Видео занимает строго верхние 67% экрана устройства, подстраиваясь под любые пропорции */
         .video-player {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
-            height: 67%; /* Ровно оставшаяся часть экрана над чатом */
-            object-fit: contain; 
+            height: 67%; 
+            object-fit: contain; /* Сохраняет пропорции видео без искажений */
             background: #000;
         }
 
-        /* Панель чата снизу: занимает ровно 1/3 (33%) экрана */
+        /* Минималистичный счетчик зрителей в правом верхнем углу */
+        .viewer-counter {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            z-index: 20;
+            pointer-events: none;
+        }
+
+        /* Панель чата снизу: занимает ровно 1/3 (33%) экрана на любом устройстве */
         .chat-overlay {
             position: absolute;
             bottom: 0;
@@ -89,10 +109,15 @@
 <body>
 
     <div class="stream-container">
-        <!-- Видеопанель управления теперь находится выше чата -->
+        <!-- Счетчик зрителей (только цифры) -->
+        <div class="viewer-counter">
+            <span id="viewCount">...</span>
+        </div>
+
+        <!-- Видеопанель управления (адаптирована под размер экрана) -->
         <video id="videoElement" class="video-player" autoplay playsinline controls></video>
 
-        <!-- Чат занимает нижнюю треть экрана и больше не перекрывается плеером -->
+        <!-- Чат снизу (33% высоты) -->
         <div class="chat-overlay">
             <div class="chat-box">
                 <iframe src="https://www5.cbox.ws/box/?boxid=967024&boxtag=lVnQsO" allowtransparency="yes" allow="autoplay" frameborder="0" marginheight="0" marginwidth="0" scrolling="auto"></iframe>
@@ -117,6 +142,23 @@
         } else {
             video.src = videoSource;
         }
+
+        // Счетчик просмотров/посетителей для сайта strmweb.github.io/live
+        const namespace = "strmweb-github-io";
+        const key = "live-page-visits";
+
+        fetch(`https://api.countapi.xyz/hit/${namespace}/${key}`)
+            .then(async response => {
+                if (!response.ok) {
+                    document.getElementById('viewCount').innerText = "1";
+                    return;
+                }
+                const data = await response.json();
+                document.getElementById('viewCount').innerText = data.value;
+            })
+            .catch(() => {
+                document.getElementById('viewCount').innerText = "1";
+            });
     </script>
 
 </body>
