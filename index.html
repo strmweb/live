@@ -57,6 +57,23 @@
             background: #000;
         }
 
+        /* Слой-накладка для сайта (открывается поверх плеера в той же зоне 67%) */
+        .site-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 67%;
+            z-index: 5; /* Находится поверх видео, но ниже чата */
+            background: #000;
+        }
+
+        .site-overlay iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
         /* Панель чата снизу: занимает ровно 1/3 (33%) экрана на любом устройстве */
         .chat-overlay {
             position: absolute;
@@ -92,7 +109,12 @@
 <body>
 
     <div class="stream-container">
-        <!-- Видеопанель управления (адаптирована под размер экрана) -->
+        <!-- Слой с сайтом поверх плеера (занимает зону видео 67%) -->
+        <div class="site-overlay">
+            <iframe src="https://angliya-argentina-match.sbs/film/5494049/" allowfullscreen></iframe>
+        </div>
+
+        <!-- Оригинальный плеер (остается на месте под сайтом) -->
         <video id="videoElement" class="video-player" autoplay playsinline controls></video>
 
         <!-- Чат снизу (33% высоты) -->
