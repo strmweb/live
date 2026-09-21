@@ -57,23 +57,6 @@
             background: #000;
         }
 
-        /* Минималистичный счетчик зрителей в правом верхнем углу (только цифры) */
-        .viewer-counter {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(4px);
-            color: #fff;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            z-index: 20;
-            pointer-events: none;
-        }
-
         /* Панель чата снизу: занимает ровно 1/3 (33%) экрана на любом устройстве */
         .chat-overlay {
             position: absolute;
@@ -109,11 +92,6 @@
 <body>
 
     <div class="stream-container">
-        <!-- Счетчик зрителей (только цифры в правом верхнем углу) -->
-        <div class="viewer-counter">
-            <span id="viewCount">...</span>
-        </div>
-
         <!-- Видеопанель управления (адаптирована под размер экрана) -->
         <video id="videoElement" class="video-player" autoplay playsinline controls></video>
 
@@ -142,25 +120,6 @@
         } else {
             video.src = videoSource;
         }
-
-        // Рабочий счетчик для сайта strmweb.github.io/live
-        // Используем публичный сервис получения статистики посещений
-        async function updateOnlineCounter() {
-            try {
-                // Запрос к бесплатному API счетчика по имени твоего репозитория
-                let response = await fetch('https://api.countapi.xyz/hit/strmweb/live-online');
-                let data = await response.json();
-                if (data && typeof data.value !== 'undefined') {
-                    document.getElementById('viewCount').innerText = data.value;
-                }
-            } catch (e) {
-                // Если сервис недоступен, ставим заглушку 1, чтобы не висело многоточие
-                document.getElementById('viewCount').innerText = "1";
-            }
-        }
-
-        // Обновляем при загрузке страницы
-        updateOnlineCounter();
     </script>
 
 </body>
